@@ -44,7 +44,7 @@ process STARSOLO {
     def use_whitelist = whitelist instanceof List ? whitelist.join(" ") : " <(gzip -cdf ${whitelist}) "
     """
     STAR \\
-        --genome $index \\
+        --genomeDir $index \\
         --readFilesIn ${reverse.join( "," )} ${forward.join( "," )} \\
         --runThreadN $task.cpus \\
         --outFileNamePrefix ${prefix}. \\

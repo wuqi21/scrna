@@ -53,21 +53,21 @@ workflow SCRNA {
     // protocol
     protocol_config = Helper.getProtocol(workflow, log, params.protocol)
     // whitelist
-    def wl = params.whitelist ? params.whitelist : protocol_config['whitelist']
+    wl = params.whitelist ? params.whitelist : protocol_config['whitelist']
     if (wl.contains(",")) {
         wl_list = wl.split(',').collect{it -> "${projectDir}/${it}"}
-        ch_barcode_whitelist = Channel.of(ws_list).collect()
+        ch_barcode_whitelist = Channel.of(wl_list).collect()
     } else {
         ch_barcode_whitelist = file("$projectDir/${wl}")
     }
     // TODO parse use python
-    def cb_umi_args = "--soloUMIlen 12 --soloCBposition 0_0_0_8 0_25_0_33 0_50_0_58 --soloUMIposition 0_60_0_71 --clip3pAdapterSeq AAAAAAAAAAAA --outFilterMatchNmin 50 --soloCBmatchWLtype 1MM"
+    def cb_umi_args = "--soloType CB_UMI_Complex --soloUMIlen 12 --soloCBposition 0_0_0_8 0_25_0_33 0_50_0_58 --soloUMIposition 0_60_0_71 --clip3pAdapterSeq AAAAAAAAAAAA --outFilterMatchNmin 50 --soloCBmatchWLtype 1MM --readFilesCommand zcat"
 
     // starsolo
     STARSOLO (
         ch_samplesheet,
         star_genome,
-        whitelist,
+        ch_barcode_whitelist,
         cb_umi_args,
     )
 
