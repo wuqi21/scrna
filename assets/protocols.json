@@ -1,0 +1,9 @@
+{
+    "scopeV2": {
+        "pattern": "C9L16C9L16C9L1U12",
+        "whitelist": "assets/whitelist/scopeV2/bclist1,assets/whitelist/scopeV2/bclist2,assets/whitelist/scopeV2/bclist3"
+    },
+    "10XV3": {
+        "pattern": "C16U12"
+    }
+}
