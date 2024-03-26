@@ -4,6 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { STAR_GENOME            } from '../modules/local/star/genome/main'
+include { STARSOLO               } from '../modules/local/star/starsolo/main'
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
@@ -35,6 +37,39 @@ workflow SCRNA {
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    // STAR genome
+    def star_genome = null
+    if (params.star_genome) {
+        star_genome = params.star_genome
+    } else {
+        STAR_GENOME(
+        params.fasta,
+        params.gtf
+        )
+        ch_versions = ch_versions.mix(STAR_GENOME.out.versions.first())
+        star_genome = STAR_GENOME.out.index
+    }
+    // protocol
+    protocol_config = Helper.getProtocol(workflow, log, params.protocol)
+    // whitelist
+    def wl = params.whitelist ? params.whitelist : protocol_config['whitelist']
+    if (wl.contains(",")) {
+        wl_list = wl.split(',').collect{it -> "${projectDir}/${it}"}
+        ch_barcode_whitelist = Channel.of(ws_list).collect()
+    } else {
+        ch_barcode_whitelist = file("$projectDir/${wl}")
+    }
+    // TODO parse use python
+    def cb_umi_args = "--soloUMIlen 12 --soloCBposition 0_0_0_8 0_25_0_33 0_50_0_58 --soloUMIposition 0_60_0_71 --clip3pAdapterSeq AAAAAAAAAAAA --outFilterMatchNmin 50 --soloCBmatchWLtype 1MM"
+
+    // starsolo
+    STARSOLO (
+        ch_samplesheet,
+        star_genome,
+        whitelist,
+        cb_umi_args,
+    )
 
     //
     // Collate and save software versions

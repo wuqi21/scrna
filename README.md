@@ -42,22 +42,18 @@ Now, you can run the pipeline using:
 
 ```bash
 nextflow run singleron-RD/scrna \
-   -profile <docker/singularity/.../institute> \
+   -profile <docker/singularity/conda/.../institute> \
    --input samplesheet.csv \
-   --outdir <OUTDIR>
+   --outdir <OUTDIR>  \
+   --fasta <path to genome.fasta> \
+   --gtf <path to genome.gtf> \
+   --save_genome
 ```
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-## Credits
-
-singleron-RD/scrna was originally written by zhouyiqi.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
 
