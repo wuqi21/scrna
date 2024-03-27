@@ -1,8 +1,7 @@
-name: star_genomegenerate
+name: star_genome
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
   - bioconda::star=2.7.10b
-

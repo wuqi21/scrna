@@ -41,14 +41,14 @@ process STARSOLO {
     // separate forward from reverse pairs
     def (forward, reverse) = reads.collate(2).transpose()
     // allow multiple whitelist; single whitelist is gzip by default; multiple whitelist are not gzip
-    def use_whitelist = whitelist instanceof List ? whitelist.join(" ") : " <(gzip -cdf ${whitelist}) "
+    // def use_whitelist = whitelist instanceof List ? whitelist.join(" ") : " <(gzip -cdf ${whitelist}) "
     """
     STAR \\
         --genomeDir $index \\
         --readFilesIn ${reverse.join( "," )} ${forward.join( "," )} \\
         --runThreadN $task.cpus \\
         --outFileNamePrefix ${prefix}. \\
-        --soloCBwhitelist ${use_whitelist} \\
+        --soloCBwhitelist ${whitelist} \\
         ${cb_umi_args} \\
         ${args} \\
 

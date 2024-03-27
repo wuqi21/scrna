@@ -285,5 +285,21 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "protocol": {
+            "type": "string",
+            "default": "scopeV2"
+        },
+        "pattern": {
+            "type": "string"
+        },
+        "whitelist": {
+            "type": "string"
+        },
+        "starsolo_extra_args": {
+            "type": "string",
+            "default": "--soloFeatures GeneFull_Ex50pAS --soloCellFilter EmptyDrops_CR --outSAMattributes NH HI nM AS CR UR CB UB GX GN --outSAMtype BAM SortedByCoordinate --soloCellReadStats Standard"
+        }
+    }
 }

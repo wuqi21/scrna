@@ -5,6 +5,7 @@
 */
 
 include { STAR_GENOME            } from '../modules/local/star/genome/main'
+include { PARSE_PROTOCOL         } from '../modules/local/parse_protocol/main'
 include { STARSOLO               } from '../modules/local/star/starsolo/main'
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
@@ -50,24 +51,22 @@ workflow SCRNA {
         ch_versions = ch_versions.mix(STAR_GENOME.out.versions.first())
         star_genome = STAR_GENOME.out.index
     }
-    // protocol
-    protocol_config = Helper.getProtocol(workflow, log, params.protocol)
-    // whitelist
-    wl = params.whitelist ? params.whitelist : protocol_config['whitelist']
-    if (wl.contains(",")) {
-        wl_list = wl.split(',').collect{it -> "${projectDir}/${it}"}
-        ch_barcode_whitelist = Channel.of(wl_list).collect()
-    } else {
-        ch_barcode_whitelist = file("$projectDir/${wl}")
-    }
-    // TODO parse use python
-    def cb_umi_args = "--soloType CB_UMI_Complex --soloUMIlen 12 --soloCBposition 0_0_0_8 0_25_0_33 0_50_0_58 --soloUMIposition 0_60_0_71 --clip3pAdapterSeq AAAAAAAAAAAA --outFilterMatchNmin 50 --soloCBmatchWLtype 1MM --readFilesCommand zcat"
+
+    // parse_protocol
+    PARSE_PROTOCOL (
+        ch_samplesheet,
+        "${projectDir}/assets/protocols.json",
+        params.protocol
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(PARSE_PROTOCOL.out.parsed_protocol.collect())
 
     // starsolo
+    cb_umi_args = PARSE_PROTOCOL.out.starsolo_cb_umi_args.map { it.text }
+    ch_whitelist = PARSE_PROTOCOL.out.whitelist.map { it.text.split(",").collect{ p -> "${projectDir}/assets/${p}" } }
     STARSOLO (
         ch_samplesheet,
         star_genome,
-        ch_barcode_whitelist,
+        ch_whitelist,
         cb_umi_args,
     )
 
