@@ -2,7 +2,7 @@ process STARSOLO {
     tag "$meta.id"
     label 'process_high'
 
-    conda 'bioconda::star=2.7.11b'
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/star:2.7.11b--h43eeafb_0' :
         'biocontainers/star:2.7.11b--h43eeafb_0' }"
@@ -13,9 +13,10 @@ process STARSOLO {
     // Input array for a sample is created in the same order reads appear in samplesheet as pairs from replicates are appended to array.
     //
     tuple val(meta), path(reads)
-    path(index)
-    path whitelist
-    val cb_umi_args
+    path index
+    path assets_dir
+    val protocol
+
 
     output:
     tuple val(meta), path('*d.out.bam')       , emit: bam
@@ -43,14 +44,15 @@ process STARSOLO {
     // allow multiple whitelist; single whitelist is gzip by default; multiple whitelist are not gzip
     // def use_whitelist = whitelist instanceof List ? whitelist.join(" ") : " <(gzip -cdf ${whitelist}) "
     """
-    STAR \\
-        --genomeDir $index \\
-        --readFilesIn ${reverse.join( "," )} ${forward.join( "," )} \\
-        --runThreadN $task.cpus \\
-        --outFileNamePrefix ${prefix}. \\
-        --soloCBwhitelist ${whitelist} \\
-        ${cb_umi_args} \\
-        ${args} \\
+    protocol_starsolo.py \\
+        --sample ${prefix} \\
+        --genomeDir ${index} \\
+        --fq1 ${forward.join( "," )} \\
+        --fq2 ${reverse.join( "," )} \\
+        --assets_dir ${assets_dir} \\
+        --protocol ${protocol} \\
+        --thread $task.cpus \\
+        --ext_args \"${args}\" \\
 
 
     if [ -f ${prefix}.Unmapped.out.mate1 ]; then

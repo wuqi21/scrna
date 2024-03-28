@@ -52,22 +52,11 @@ workflow SCRNA {
         star_genome = STAR_GENOME.out.index
     }
 
-    // parse_protocol
-    PARSE_PROTOCOL (
-        ch_samplesheet,
-        "${projectDir}/assets/protocols.json",
-        params.protocol
-    )
-    ch_multiqc_files = ch_multiqc_files.mix(PARSE_PROTOCOL.out.parsed_protocol.collect())
-
-    // starsolo
-    cb_umi_args = PARSE_PROTOCOL.out.starsolo_cb_umi_args.map { it.text }
-    ch_whitelist = PARSE_PROTOCOL.out.whitelist.map { it.text.split(",").collect{ p -> "${projectDir}/assets/${p}" } }
     STARSOLO (
         ch_samplesheet,
         star_genome,
-        ch_whitelist,
-        cb_umi_args,
+        "${projectDir}/assets/",
+        params.protocol,
     )
 
     //

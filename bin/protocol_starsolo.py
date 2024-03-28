@@ -9,10 +9,11 @@ import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
+import logging
 
 import pyfastx
 
-SAM_attributes = 'NH HI nM AS CR UR CB UB GX GN '
+logger = logging.getLogger(__name__)
 
 def get_seq_str(seq, sub_pattern):
     """
@@ -91,7 +92,40 @@ def read_one_col(fn):
         return [x.strip() for x in f]
 
 
+def parse_pattern(pattern, allowed="CLUNT"):
+    """
+    >>> pattern_dict = parse_pattern("C8L16C8L16C8L1U12T18")
+    >>> pattern_dict['C']
+    [slice(0, 8, None), slice(24, 32, None), slice(48, 56, None)]
+    >>> pattern_dict['L']
+    [slice(8, 24, None), slice(32, 48, None), slice(56, 57, None)]
+    """
+    pattern_dict = {}
+    p = re.compile(r'([A-Z])(\d+)')
+    tmp = p.findall(pattern)
+    if not tmp:
+        sys.exit(f'Invalid pattern: {pattern}')
+    start = 0
+    for x, length in tmp:
+        if x not in allowed:
+            sys.exit(f'Invalid pattern: {pattern}')
+        if x not in pattern_dict:
+            pattern_dict[x] = []
+        end = start + int(length)
+        pattern_dict[x].append(slice(start,end))
+        start = end
+    return pattern_dict
+
+
 def get_protocol_dict(assets_dir):
+    """
+    Return:
+    protocol_dict. Key: protocol name, value: protocol dict
+
+    >>> protocol_dict = get_protocol_dict("./assets/")
+    >>> protocol_dict["GEXSCOPE-MicroBead"]["pattern_dict"]
+    {'C': [slice(0, 12, None)], 'U': [slice(12, 20, None)]}
+    """
     json_file = os.path.join(assets_dir, "protocols.json")
     protocol_dict = json.load(open(json_file))
     whitelist_dir = os.path.join(assets_dir, "whitelist")
@@ -126,17 +160,17 @@ class Protocol:
         self.max_read = max_read
         self.sample = sample
         self.protocol_dict = get_protocol_dict(assets_dir)
-        self.scircle_R1_LEN = self.protocol_dict["sCircle-V1"]["pattern_dict"]["U"][-1].stop
+        self.scircle_R1_LEN = self.protocol_dict["GEXSCOPE-sCircle"]["pattern_dict"]["U"][-1].stop
 
-    def check_protocol(self):
+    def get_protocol(self):
         """check protocol in the fq1_list"""
         fq_protocol = {}
         for fastq1 in self.fq1_list:
-            protocol = self.get_protocol(fastq1)
+            protocol = self.get_fq_protocol(fastq1)
             fq_protocol[fastq1] = protocol
-        if len(set(fq_protocol.vals())) != 1:
+        if len(set(fq_protocol.values())) != 1:
             sys.exit(f'Error: multiple protocols are not allowed for one sample: {self.sample}! \n' + str(fq_protocol))
-        protocol = list(fq_protocol.vals())[0]
+        protocol = list(fq_protocol.values())[0]
         return protocol
 
     def check_linker(self, seq, protocol, i):
@@ -186,25 +220,23 @@ class Protocol:
         if seq[16:20] != "TTTT" and seq[22:26] == "TTTT":
             return "GEXSCOPE-MicroBead"
 
-
-    def get_protocol(self, fq1):
+    def get_fq_protocol(self, fq1):
         results = defaultdict(int)
 
-        with pyfastx.Fastx(fq1) as fh:
-            for _ in range(self.max_read):
-                entry = fh.__next__()
-                seq = entry.sequence
-                protocol = self.seq_protocol(seq)
-                if protocol:
-                    results[protocol] += 1
-        # if it is 0, then no other linker types
-        if results["scopeV1"] != 0:
-            results["scopeV1"] += results["scopeV2.1.1"]
+        fq = pyfastx.Fastx(fq1)
+        n = 0
+        for name,seq,qual in fq:
+            n += 1
+            protocol = self.seq_protocol(seq)
+            if protocol:
+                results[protocol] += 1
+            if n == self.max_read:
+                break
         sorted_counts = sorted(results.items(), key=lambda x: x[1], reverse=True)
-        self.get_protocol.logger.info(sorted_counts)
+        logger.info(sorted_counts)
 
-        protocol, read_counts = sorted_counts[0][0], sorted_counts[0][1]
-        percent = float(read_counts) / self.max_read
+        protocol, read_counts = sorted_counts[0]
+        percent = float(read_counts) / n
         if percent < 0.5:
             self.get_protocol.logger.warning("Valid protocol read counts percent < 0.5")
         if percent < 0.1:
@@ -212,60 +244,92 @@ class Protocol:
             raise Exception(
                 'Auto protocol detection failed! '
             )
-        protocol.get_protocol.logger.info(f'protocol: {protocol}')
+        logger.info(f'{fq1}: {protocol}')
 
         return protocol
 
 
+class Starsolo:
+    def __init__(self, args):
+        self.args = args
+        fq1_list = args.fq1.split(",")
+        fq2_list = args.fq2.split(",")
+        fq1_number = len(fq1_list)
+        fq2_number = len(fq2_list)
+        if fq1_number != fq2_number:
+            sys.exit('fastq1 and fastq2 do not have same file number!')
 
-def parse_pattern(pattern):
-    """
-    >>> pattern_dict = parse_pattern("C8L16C8L16C8L1U12T18")
-    >>> pattern_dict['C']
-    [slice(0, 8, None), slice(24, 32, None), slice(48, 56, None)]
-    >>> pattern_dict['L']
-    [slice(8, 24, None), slice(32, 48, None), slice(56, 57, None)]
-    """
-    pattern_dict = defaultdict(list)
-    p = re.compile(r'([CLUNT])(\d+)')
-    tmp = p.findall(pattern)
-    if not tmp:
-        sys.exit(f'Invalid pattern: {pattern}')
-    start = 0
-    for p, length in tmp:
-        end = start + int(length)
-        pattern_dict[p].append(slice(start,end))
-        start = end
-    return pattern_dict
+        self.read_command = 'cat'
+        if str(fq1_list[0]).endswith('.gz'):
+            self.read_command = 'zcat'
 
-def get_solo_pattern(pattern) -> str:
-    """
-    Returns:
-        starsolo_cb_umi_args
-    """
-    pattern_dict = parse_pattern(pattern)
-    if len(pattern_dict['U']) != 1:
-        sys.exit(f'Error: Wrong pattern:{pattern}. \n Solution: fix pattern so that UMI only have 1 position.\n')
-    ul, ur = pattern_dict["U"][0]
-    umi_len = ur - ul
+        if args.protocol == 'auto':
+            protocol = Protocol(fq1_list, args.sample).get_protocol()
+        else:
+            protocol = args.protocol
+        protocol_dict = get_protocol_dict(args.assets_dir)
 
-    if len(pattern_dict["C"]) == 1:
-        solo_type = 'CB_UMI_Simple'
-        l, r = pattern_dict["C"][0]
-        cb_start = l + 1
-        cb_len = r - l
-        umi_start = ul + 1
-        cb_str = f'--soloCBstart {cb_start} --soloCBlen {cb_len} --soloCBmatchWLtype 1MM'
-        umi_str = f'--soloUMIstart {umi_start} --soloUMIlen {umi_len} '
-    else:
-        solo_type = 'CB_UMI_Complex'
-        cb_pos = ' '.join([f'0_{l}_0_{r-1}' for l, r in pattern_dict["C"]])
-        umi_pos = f'0_{ul}_0_{ur-1}'
-        cb_str = f'--soloCBposition {cb_pos} --soloCBmatchWLtype EditDist_2 '
-        umi_str = f'--soloUMIposition {umi_pos} --soloUMIlen {umi_len} '
+        if protocol == 'new':
+            pattern = args.pattern
+            whitelist_str = args.whitelist
+        else:
+            pattern = protocol_dict[protocol]["pattern"]
+            whitelist_str = " ".join(protocol_dict[protocol].get("bc", []))
 
-    starsolo_cb_umi_args = f'--soloType {solo_type} ' + cb_str + umi_str
-    return starsolo_cb_umi_args
+        pattern_args = Starsolo.get_solo_pattern(pattern)
+        if not whitelist_str:
+            whitelist_str = 'None'
+        self.cb_umi_args = pattern_args + f' --soloCBwhitelist {whitelist_str} '
+
+
+    @staticmethod
+    def get_solo_pattern(pattern) -> str:
+        """
+        Returns:
+            starsolo_cb_umi_args
+        """
+        pattern_dict = parse_pattern(pattern)
+        if len(pattern_dict['U']) != 1:
+            sys.exit(f'Error: Wrong pattern:{pattern}. \n Solution: fix pattern so that UMI only have 1 position.\n')
+        ul = pattern_dict["U"][0].start
+        ur = pattern_dict["U"][0].stop
+        umi_len = ur - ul
+
+        if len(pattern_dict["C"]) == 1:
+            solo_type = 'CB_UMI_Simple'
+            l, r = pattern_dict["C"][0].start, pattern_dict["C"][0].stop
+            cb_start = l + 1
+            cb_len = r - l
+            umi_start = ul + 1
+            cb_str = f'--soloCBstart {cb_start} --soloCBlen {cb_len} --soloCBmatchWLtype 1MM'
+            umi_str = f'--soloUMIstart {umi_start} --soloUMIlen {umi_len} '
+        else:
+            solo_type = 'CB_UMI_Complex'
+            cb_pos = ' '.join([f'0_{x.start}_0_{x.stop-1}' for x in pattern_dict["C"]])
+            umi_pos = f'0_{ul}_0_{ur-1}'
+            cb_str = f'--soloCBposition {cb_pos} --soloCBmatchWLtype EditDist_2 '
+            umi_str = f'--soloUMIposition {umi_pos} --soloUMIlen {umi_len} '
+
+        starsolo_cb_umi_args = f'--soloType {solo_type} ' + cb_str + umi_str
+        return starsolo_cb_umi_args
+
+    def run(self):
+        """
+        If UMI+CB length is not equal to the barcode read length, specify barcode read length with --soloBarcodeReadLength.
+        To avoid checking of barcode read length, specify soloBarcodeReadLength 0
+        """
+        cmd = (
+            'STAR \\\n'
+            f'{self.cb_umi_args} \\\n'
+            f'--genomeDir {self.args.genomeDir} \\\n'
+            f'--readFilesIn {self.args.fq2} {self.args.fq1} \\\n'
+            f'--readFilesCommand {self.read_command} \\\n'
+            f'--outFileNamePrefix {self.args.sample}. \\\n'
+            f'--runThreadN {self.args.thread} \\\n'
+            f'{self.args.ext_args} \\\n'
+        )
+        logger.info(cmd)
+        subprocess.check_call(cmd, shell=True)
 
 
 def write_output(parsed_protocol, starsolo_cb_umi_args, whitelist, sample):
@@ -288,35 +352,22 @@ if __name__ == '__main__':
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--sample', required=True)
-    parser.add_argument('--R1_fastq', required=True)
-    parser.add_argument('--R2_fastq', required=True)
-    parser.add_argument('--asset_dir', required=True)
+    parser.add_argument('--genomeDir', required=True)
+    parser.add_argument('--fq1', required=True)
+    parser.add_argument('--fq2', required=True)
+    parser.add_argument('--assets_dir', required=True)
     parser.add_argument('--protocol', required=True)
-    parser.add_argument('--pattern')
+    parser.add_argument('--thread', required=True)
+    parser.add_argument('--ext_args', required=True)
     parser.add_argument('--whitelist')
     # add version
     parser.add_argument('--version', action='version', version='1.0')
 
     args = parser.parse_args()
 
-    if args.protocol == 'new':
-        # TODO
-        pass
+    runner = Starsolo(args)
+    runner.run()
 
-    elif args.protocol == 'auto':
-        # TODO
-        pass
-
-    else:
-        # get the protocol from protocols.json
-        with open(args.json_file) as f:
-            p = json.load(f)[args.protocol]
-        parsed_protocol = args.protocol
-        pattern = p['pattern']
-        whitelist = p['whitelist']
-
-    starsolo_cb_umi_args = get_solo_pattern(pattern)
-    write_output(parsed_protocol, starsolo_cb_umi_args, whitelist, args.sample)
 
 
 
