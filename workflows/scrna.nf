@@ -5,7 +5,7 @@
 */
 
 include { STAR_GENOME            } from '../modules/local/star/genome/main'
-include { PARSE_PROTOCOL         } from '../modules/local/parse_protocol/main'
+include { CREATE_CMD         } from '../modules/local/create_cmd/main'
 include { STARSOLO               } from '../modules/local/star/starsolo/main'
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
@@ -52,12 +52,26 @@ workflow SCRNA {
         star_genome = STAR_GENOME.out.index
     }
 
-    STARSOLO (
+    // create cmd
+    CREATE_CMD (
         ch_samplesheet,
         star_genome,
         "${projectDir}/assets/",
         params.protocol,
     )
+    ch_versions = ch_versions.mix(CREATE_CMD.out.versions.first())
+    ch_reads = CREATE_CMD.out.reads
+    ch_starsolo_cmd = CREATE_CMD.out.starsolo_cmd.map { it.text }
+
+    // starsolo
+    STARSOLO (
+        ch_reads,
+        star_genome,
+        "${projectDir}/assets/",
+        ch_starsolo_cmd,
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(STARSOLO.out.log_final.collect()).mix(STARSOLO.out.summary.collect())
+    ch_versions = ch_versions.mix(STARSOLO.out.versions.first())
 
     //
     // Collate and save software versions

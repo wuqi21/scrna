@@ -14,6 +14,7 @@ import logging
 import pyfastx
 
 logger = logging.getLogger(__name__)
+SOLOFEATURE = "GeneFull_Ex50pAS"
 
 def get_seq_str(seq, sub_pattern):
     """
@@ -281,6 +282,14 @@ class Starsolo:
             whitelist_str = 'None'
         self.cb_umi_args = pattern_args + f' --soloCBwhitelist {whitelist_str} '
 
+        # out cmd
+        self.cmd_fn = args.sample + '.starsolo_cmd.txt'
+        protocol_fn = args.sample + '.protocol.txt'
+
+        # write protocol
+        with open(protocol_fn, 'w') as fout:
+            fout.write(f'{protocol}')
+
 
     @staticmethod
     def get_solo_pattern(pattern) -> str:
@@ -313,23 +322,29 @@ class Starsolo:
         starsolo_cb_umi_args = f'--soloType {solo_type} ' + cb_str + umi_str
         return starsolo_cb_umi_args
 
-    def run(self):
+    def write_cmd(self):
         """
         If UMI+CB length is not equal to the barcode read length, specify barcode read length with --soloBarcodeReadLength.
         To avoid checking of barcode read length, specify soloBarcodeReadLength 0
         """
-        cmd = (
+        prefix = self.args.sample + '.'
+        cmd_starsolo = (
             'STAR \\\n'
             f'{self.cb_umi_args} \\\n'
             f'--genomeDir {self.args.genomeDir} \\\n'
             f'--readFilesIn {self.args.fq2} {self.args.fq1} \\\n'
             f'--readFilesCommand {self.read_command} \\\n'
-            f'--outFileNamePrefix {self.args.sample}. \\\n'
+            f'--outFileNamePrefix {prefix} \\\n'
             f'--runThreadN {self.args.thread} \\\n'
-            f'{self.args.ext_args} \\\n'
+            f'{self.args.ext_args} \n'
         )
+        cmd_mv = (
+            f'mv {prefix}Solo.out/{SOLOFEATURE}/Summary.csv {prefix}Solo.out/{SOLOFEATURE}/{prefix}Summary.csv \n'
+        )
+        cmd = cmd_starsolo + cmd_mv
         logger.info(cmd)
-        subprocess.check_call(cmd, shell=True)
+        with open(self.cmd_fn, 'w') as f:
+            f.write(cmd)
 
 
 def write_output(parsed_protocol, starsolo_cb_umi_args, whitelist, sample):
@@ -366,7 +381,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     runner = Starsolo(args)
-    runner.run()
+    runner.write_cmd()
 
 
 

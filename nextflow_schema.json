@@ -74,6 +74,55 @@
                 }
             }
         },
+        "protocol_options": {
+            "title": "Protocol options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "protocol": {
+                    "type": "string",
+                    "default": "auto",
+                    "enum": ["auto", "GEXSCOPE-MicroBead", "GEXSCOPE-V1", "GEXSCOPE-V2", "GEXSCOPE-sCircle", "new"],
+                    "description": "Predefined pattern and whitelist.",
+                    "help_text": "The default is to auto-detect the protocol when running GEXSCOPE. "
+                },
+                "pattern": {
+                    "type": "string"
+                },
+                "whitelist": {
+                    "type": "string"
+                }
+            }
+        },
+        "starsolo_options": {
+            "title": "STARSolo options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "starsolo_extra_args": {
+                    "type": "string",
+                    "default": "--clip3pAdapterSeq AAAAAAAAAAAA --outSAMtype BAM SortedByCoordinate"
+                },
+                "soloFeatures": {
+                    "type": "string",
+                    "default": "GeneFull_Ex50pAS"
+                },
+                "outFilterMatchNmin": {
+                    "type": "integer",
+                    "default": 50
+                },
+                "soloCellFilter": {
+                    "type": "string",
+                    "default": "EmptyDrops_CR"
+                },
+                "outSAMattributes": {
+                    "type": "string",
+                    "default": "NH HI nM AS CR UR CB UB GX GN"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -277,6 +326,12 @@
             "$ref": "#/definitions/genome"
         },
         {
+            "$ref": "#/definitions/protocol_options"
+        },
+        {
+            "$ref": "#/definitions/starsolo_options"
+        },
+        {
             "$ref": "#/definitions/institutional_config_options"
         },
         {
@@ -285,21 +340,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {
-        "protocol": {
-            "type": "string",
-            "default": "scopeV2"
-        },
-        "pattern": {
-            "type": "string"
-        },
-        "whitelist": {
-            "type": "string"
-        },
-        "starsolo_extra_args": {
-            "type": "string",
-            "default": "--soloFeatures GeneFull_Ex50pAS --soloCellFilter EmptyDrops_CR --outSAMattributes NH HI nM AS CR UR CB UB GX GN --outSAMtype BAM SortedByCoordinate --soloCellReadStats Standard"
-        }
-    }
+    ]
 }
