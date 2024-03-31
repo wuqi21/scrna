@@ -1,4 +1,4 @@
-process CREATE_CMD {
+process PROTOCOL_CMD {
     tag "$meta.id"
     label 'process_single'
 
@@ -34,7 +34,7 @@ process CREATE_CMD {
     // separate forward from reverse pairs
     def (forward, reverse) = reads.collate(2).transpose()
     """
-    protocol_starsolo.py \\
+    protocol_cmd.py \\
         --sample ${prefix} \\
         --genomeDir ${index} \\
         --fq1 ${forward.join( "," )} \\

@@ -5,10 +5,10 @@
 */
 
 include { STAR_GENOME            } from '../modules/local/star/genome/main'
-include { CREATE_CMD         } from '../modules/local/create_cmd/main'
+include { PROTOCOL_CMD           } from '../modules/local/protocol_cmd/main'
 include { STARSOLO               } from '../modules/local/star/starsolo/main'
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                } from '../modules/local/multiqc_sgr/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -53,15 +53,15 @@ workflow SCRNA {
     }
 
     // create cmd
-    CREATE_CMD (
+    PROTOCOL_CMD (
         ch_samplesheet,
         star_genome,
         "${projectDir}/assets/",
         params.protocol,
     )
-    ch_versions = ch_versions.mix(CREATE_CMD.out.versions.first())
-    ch_reads = CREATE_CMD.out.reads
-    ch_starsolo_cmd = CREATE_CMD.out.starsolo_cmd.map { it.text }
+    ch_versions = ch_versions.mix(PROTOCOL_CMD.out.versions.first())
+    ch_reads = PROTOCOL_CMD.out.reads
+    ch_starsolo_cmd = PROTOCOL_CMD.out.starsolo_cmd.map { it.text }
 
     // starsolo
     STARSOLO (
