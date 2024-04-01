@@ -18,6 +18,7 @@ process STARSOLO {
     val starsolo_cmd
 
     output:
+    tuple val(meta), path("${meta.id}.matrix/")       , emit: matrix
     tuple val(meta), path('*d.out.bam')       , emit: bam
     tuple val(meta), path('*.Solo.out/*')       , emit: counts
     path('*Log.final.out')   , emit: log_final
@@ -36,9 +37,7 @@ process STARSOLO {
     script:
     def prefix = "${meta.id}"
 
-    // separate forward from reverse pairs
-    // allow multiple whitelist; single whitelist is gzip by default; multiple whitelist are not gzip
-    // def use_whitelist = whitelist instanceof List ? whitelist.join(" ") : " <(gzip -cdf ${whitelist}) "
+    // do not indent
 """
 ${starsolo_cmd}
 
@@ -46,6 +45,10 @@ if [ -d ${prefix}.Solo.out ]; then
     # Backslashes still need to be escaped (https://github.com/nextflow-io/nextflow/issues/67)
     find ${prefix}.Solo.out \\( -name "*.tsv" -o -name "*.mtx" \\) -exec gzip -f {} \\;
 fi
+
+mv ${prefix}.Solo.out/GeneFull_Ex50pAS/Summary.csv ${prefix}.Solo.out/GeneFull_Ex50pAS/${prefix}.Summary.csv
+mkdir ${prefix}.matrix
+mv ${prefix}.Solo.out/GeneFull_Ex50pAS/{raw,filtered} ./${prefix}.matrix/
 
 cat <<-END_VERSIONS > versions.yml
 "${task.process}":

@@ -10,7 +10,7 @@ Run the pipeline with test data using
 nextflow run singleron-RD/scrna -profile test,docker --outdir ./outs
 ```
 
-This is equivalent to the following command
+The test config file can be found [here](../conf/test.config). This is equivalent to the following command
 
 ```
 nextflow run singleron-RD/scrna \
@@ -19,7 +19,11 @@ nextflow run singleron-RD/scrna \
  --input 'https://github.com/zhouyiqi91/nf_test_data/raw/main/scRNA/scopeV3.0.1/test.csv' \
  --fasta 'https://github.com/nf-core/test-datasets/raw/scrnaseq/reference/GRCm38.p6.genome.chr19.fa' \
  --gtf 'https://github.com/nf-core/test-datasets/raw/scrnaseq/reference/gencode.vM19.annotation.chr19.gtf' \
- --save_genome_name 'mouse_chr19'
+ --genome_name 'mouse_chr19' \
+ --keep_attributes 'gene_type=protein_coding,lncRNA,antisense' \
+ --max_cpus 2 \
+ --max_memory '6.GB' \
+ --max_time '6.h'
 ```
 
 If you prefer a web-based graphical interface or an interactive command-line wizard tool to enter the pipeline parameters, you can use [nf-core launch](https://oldsite.nf-co.re/tools/#launch-a-pipeline):
@@ -28,6 +32,16 @@ If you prefer a web-based graphical interface or an interactive command-line wiz
 pip install nf-core
 nf-core launch singleron-RD/scrna
 ```
+
+Since indexing is an expensive process in time and resources you should ensure that it is only done once, by retaining the indices generated from each batch of reference files. When running data from the same genome later, you can provide the star genome index path to skip the indexing:
+
+```
+nextflow run singleron-RD/scrna \
+ --star_genome {path to generated STAR genome index folder} \
+ ...
+```
+
+`--fasta` and `--gtf`are not required if `--star_genome` is provided.
 
 ## Input
 
@@ -44,13 +58,21 @@ Each row represents a pair of fastq files.
 
 ## Main Output
 
-- `{outdir}/genome/{save_genome_name}/star` Since indexing is an expensive process in time and resources you should ensure that it is only done once, by retaining the indices generated from each batch of reference files. In the second run, you can provide the star genome index path to skip the indexing:
+Genome
 
-```
- --star_genome {genome path}
-```
+- `{outdir}/genome/{genome_name}/` STAR genome index folder.
 
-- `{outdir}/{starsolo}/{sample}/{sample}.Solo.out/GeneFull_Ex50pAS/raw` Gene expression matrix file contains all barcodes(background + cell) from the barcode whitelist.
-- `{outdir}/{starsolo}/{sample}/{sample}.Solo.out/GeneFull_Ex50pAS/filtered` Gene expression matrix file contains only cell barcodes. This file should be used as input to downstream analysis tools such as Seurat and Scanpy.
+Matrix
+
+- `{outdir}/{sample}.matrix/raw` Gene expression matrix file contains all barcodes(background + cell) from the barcode whitelist.
+- `{outdir}/{sample}.matrix/filtered` Gene expression matrix file contains only cell barcodes. This file should be used as input to downstream analysis tools such as Seurat and Scanpy.
+
+`raw` and `filtered` are copied from `{Sample}.Solo.out/GeneFull_Ex50pAS/`
+
+BAM
+
 - `{outdir}/{starsolo}/{sample}/{sample}.Aligned.sortedByCoord.out.bam` This bam file contains coordinate-sorted reads aligned to the genome.
+
+Report
+
 - `{outdir}/multiqc/multiqc_report.html` HTML QC report for reads and cells.

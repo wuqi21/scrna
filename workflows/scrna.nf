@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { FILTER_GTF             } from '../modules/local/filter_gtf'
 include { STAR_GENOME            } from '../modules/local/star/genome/main'
 include { PROTOCOL_CMD           } from '../modules/local/protocol_cmd/main'
 include { STARSOLO               } from '../modules/local/star/starsolo/main'
@@ -44,9 +45,15 @@ workflow SCRNA {
     if (params.star_genome) {
         star_genome = params.star_genome
     } else {
+        FILTER_GTF(
+            params.gtf,
+            params.keep_attributes,
+        )
+        ch_gtf = FILTER_GTF.out.filtered_gtf
         STAR_GENOME(
-        params.fasta,
-        params.gtf
+            params.fasta,
+            ch_gtf,
+            params.genome_name
         )
         ch_versions = ch_versions.mix(STAR_GENOME.out.versions.first())
         star_genome = STAR_GENOME.out.index

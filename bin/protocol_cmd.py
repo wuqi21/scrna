@@ -328,7 +328,7 @@ class Starsolo:
         To avoid checking of barcode read length, specify soloBarcodeReadLength 0
         """
         prefix = self.args.sample + '.'
-        cmd_starsolo = (
+        cmd = (
             'STAR \\\n'
             f'{self.cb_umi_args} \\\n'
             f'--genomeDir {self.args.genomeDir} \\\n'
@@ -338,28 +338,9 @@ class Starsolo:
             f'--runThreadN {self.args.thread} \\\n'
             f'{self.args.ext_args} \n'
         )
-        cmd_mv = (
-            f'mv {prefix}Solo.out/{SOLOFEATURE}/Summary.csv {prefix}Solo.out/{SOLOFEATURE}/{prefix}Summary.csv \n'
-        )
-        cmd = cmd_starsolo + cmd_mv
         logger.info(cmd)
         with open(self.cmd_fn, 'w') as f:
             f.write(cmd)
-
-
-def write_output(parsed_protocol, starsolo_cb_umi_args, whitelist, sample):
-    """
-    write files:
-        path "*starsolo_cb_umi_args.txt", emit: starsolo_cb_umi_args
-        path "*parsed_protocol.txt", emit: parsed_protocol
-        path "*whitelist.txt", emit: whitelist
-    """
-    with open(sample + '.parsed_protocol.txt', 'w') as f:
-        f.write(parsed_protocol)
-    with open(sample + '.starsolo_cb_umi_args.txt', 'w') as f:
-        f.write(starsolo_cb_umi_args)
-    with open(sample + '.whitelist.txt', 'w') as f:
-        f.write(whitelist)
 
 
 if __name__ == '__main__':
