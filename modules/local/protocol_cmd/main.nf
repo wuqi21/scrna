@@ -42,6 +42,8 @@ process PROTOCOL_CMD {
         --assets_dir ${assets_dir} \\
         --protocol ${protocol} \\
         --thread $task.cpus \\
+        --pattern ${params.pattern} \\
+        --whitelist \"${params.whitelist}\" \\
         --ext_args \"${args}\" \\
 
     cat <<-END_VERSIONS > versions.yml

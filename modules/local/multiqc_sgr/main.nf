@@ -26,7 +26,6 @@ process MULTIQC {
     def logo = multiqc_logo ? /--cl-config 'custom_logo: "${multiqc_logo}"'/ : ''
     """
     multiqc \\
-        --force \\
         $args \\
         $config \\
         $extra_config \\

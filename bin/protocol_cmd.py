@@ -279,7 +279,7 @@ class Starsolo:
 
         pattern_args = Starsolo.get_solo_pattern(pattern)
         if not whitelist_str:
-            whitelist_str = 'None'
+            whitelist_str = args.whitelist if args.whitelist else 'None'
         self.cb_umi_args = pattern_args + f' --soloCBwhitelist {whitelist_str} '
 
         # out cmd
@@ -310,7 +310,7 @@ class Starsolo:
             cb_start = l + 1
             cb_len = r - l
             umi_start = ul + 1
-            cb_str = f'--soloCBstart {cb_start} --soloCBlen {cb_len} --soloCBmatchWLtype 1MM'
+            cb_str = f'--soloCBstart {cb_start} --soloCBlen {cb_len} --soloCBmatchWLtype 1MM '
             umi_str = f'--soloUMIstart {umi_start} --soloUMIlen {umi_len} '
         else:
             solo_type = 'CB_UMI_Complex'
@@ -319,7 +319,7 @@ class Starsolo:
             cb_str = f'--soloCBposition {cb_pos} --soloCBmatchWLtype EditDist_2 '
             umi_str = f'--soloUMIposition {umi_pos} --soloUMIlen {umi_len} '
 
-        starsolo_cb_umi_args = f'--soloType {solo_type} ' + cb_str + umi_str
+        starsolo_cb_umi_args = " ".join([f'--soloType {solo_type} ', cb_str, umi_str])
         return starsolo_cb_umi_args
 
     def write_cmd(self):
@@ -356,6 +356,7 @@ if __name__ == '__main__':
     parser.add_argument('--thread', required=True)
     parser.add_argument('--ext_args', required=True)
     parser.add_argument('--whitelist')
+    parser.add_argument('--pattern')
     # add version
     parser.add_argument('--version', action='version', version='1.0')
 
