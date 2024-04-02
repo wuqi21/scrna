@@ -114,7 +114,7 @@
                 "soloFeatures": {
                     "type": "string",
                     "default": "GeneFull_Ex50pAS",
-                    "description": "Quantification of different transcriptomic features",
+                    "description": "Quantification of different transcriptomic features.",
                     "help_text": "https://github.com/alexdobin/STAR/issues/1460  \n--soloFeatures SJ quantifies splice junctions by calculating per-cell counts ofreads that are spliced across junctions. It will count spliced reads across annotatedand unannotated junctions, thus allowing analysis of inter-cell alternative splicing and detection of novel splice isoforms.  \n--soloFeatures Velocyto performs separate counting for spliced, unsplicedand ambiguous reads, similar to the Velocyto tool . Its output can be usedin the RNA-velocity analyses to dissect the transcriptional dynamics of the cells.  "
                 },
                 "outFilterMatchNmin": {
@@ -126,13 +126,14 @@
                 "soloCellFilter": {
                     "type": "string",
                     "default": "EmptyDrops_CR 3000 0.99 10 45000 90000 1000 0.01 20000 0.001 10000",
-                    "description": "Cell-calling method. https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#cell-filtering-calling",
-                    "help_text": "EmptyDrops_CR can be followed by 10 numeric parameters: nExpectedCells (3000), maxPercentile (0.99), maxMinRatio (10), indMin (45000), indMax (90000), umiMin (1000), umiMinFracMedian (0.01), candMaxN (20000), FDR (0.01), simN (10000)."
+                    "description": "Cell-calling method.",
+                    "help_text": "https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#cell-filtering-calling"
                 },
                 "outSAMattributes": {
                     "type": "string",
                     "default": "NH HI nM AS CR UR CB UB GX GN",
-                    "description": "Output tags in SAM/BAM. https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#bam-tags"
+                    "description": "Output tags in SAM/BAM.",
+                    "help_text": "https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#bam-tags"
                 },
                 "starsolo_extra_args": {
                     "type": "string",

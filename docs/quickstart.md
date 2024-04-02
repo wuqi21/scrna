@@ -7,7 +7,7 @@
 Run the pipeline with test data using
 
 ```
-nextflow run singleron-RD/scrna -profile test,docker --outdir ./outs
+nextflow run singleron-RD/scrna -profile test,docker --outdir ./results
 ```
 
 The test config file can be found [here](../conf/test.config). This is equivalent to the following command
@@ -15,8 +15,8 @@ The test config file can be found [here](../conf/test.config). This is equivalen
 ```
 nextflow run singleron-RD/scrna \
  -profile docker \
- --outdir ./outs \
- --input 'https://github.com/zhouyiqi91/nf_test_data/raw/main/scRNA/scopeV3.0.1/test.csv' \
+ --outdir ./results \
+ --input 'https://raw.githubusercontent.com/singleron-RD/scrna_test_data/master/GEXSCOPE-V2/samplesheet.csv' \
  --fasta 'https://github.com/nf-core/test-datasets/raw/scrnaseq/reference/GRCm38.p6.genome.chr19.fa' \
  --gtf 'https://github.com/nf-core/test-datasets/raw/scrnaseq/reference/gencode.vM19.annotation.chr19.gtf' \
  --genome_name 'mouse_chr19' \
@@ -41,7 +41,8 @@ nextflow run singleron-RD/scrna \
  ...
 ```
 
-`--fasta` and `--gtf`are not required if `--star_genome` is provided.
+> [!NOTE]
+> `--fasta` and `--gtf` are not required if `--star_genome` is provided.
 
 ## Input
 
@@ -60,19 +61,18 @@ Each row represents a pair of fastq files.
 
 Genome
 
-- `{outdir}/genome/{genome_name}/` STAR genome index folder.
+- `genome/{genome_name}/` STAR genome index folder.
 
 Matrix
 
-- `{outdir}/{sample}.matrix/raw` Gene expression matrix file contains all barcodes(background + cell) from the barcode whitelist.
-- `{outdir}/{sample}.matrix/filtered` Gene expression matrix file contains only cell barcodes. This file should be used as input to downstream analysis tools such as Seurat and Scanpy.
+- `matrix/{sample}.matrix/raw` Gene expression matrix file contains all barcodes(background + cell) from the barcode whitelist.
 
-`raw` and `filtered` are copied from `{Sample}.Solo.out/GeneFull_Ex50pAS/`
+- `matrix/{sample}.matrix/filtered` Gene expression matrix file contains only cell barcodes. This file should be used as input to downstream analysis tools such as Seurat and Scanpy.
 
 BAM
 
-- `{outdir}/{starsolo}/{sample}/{sample}.Aligned.sortedByCoord.out.bam` This bam file contains coordinate-sorted reads aligned to the genome.
+- `bam/{sample}.Aligned.sortedByCoord.out.bam` This bam file contains coordinate-sorted reads aligned to the genome.
 
 Report
 
-- `{outdir}/multiqc/multiqc_report.html` HTML QC report for reads and cells.
+- `multiqc/multiqc_report.html` HTML QC report for reads and cells.

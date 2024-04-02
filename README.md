@@ -4,9 +4,9 @@
 It takes a samplesheet and FASTQ files as input, performs the following steps:
 
 - Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-- Auto-detect GEXSCOPE protocols and generate STARSolo Command-Line scripts ([`protocol_cmd.py`](./bin/protocol_cmd.py))
-- Filter gtf ([`filter_gtf.py`](./bin/filter_gtf.py))
-- generate genome Index ([`STAR`](https://github.com/alexdobin/STAR/))
+- Auto-detect GEXSCOPE protocols and generate STARSolo command-line arguments ([`protocol_cmd.py`](./bin/protocol_cmd.py))
+- Filter gtf attributes ([`filter_gtf.py`](./bin/filter_gtf.py))
+- Generate star genome Index ([`STAR`](https://github.com/alexdobin/STAR/))
 - Mapping, demultiplexing and quantification ([`STARSolo`](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md))
 - HTML report ([`MultiQC`](http://multiqc.info/))
 
@@ -15,7 +15,6 @@ It takes a samplesheet and FASTQ files as input, performs the following steps:
 - [Quick Start](./docs/quickstart.md)
 - [Usage](./docs/usage.md)
 - [Parameters](./docs/parameters.md)
-- [Output](./docs/output.md)
 
 ## Contributions and Support
 
