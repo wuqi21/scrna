@@ -14,7 +14,8 @@ You will need to create a samplesheet with information about the samples you wou
 | `fastq_1` | Full path to FastQ file reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                |
 | `fastq_2` | Full path to FastQ file reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                |
 
-> [!NOTE] fastq_1 and fastq_2 must be full path. Relative path are not allowed.
+> [!NOTE]
+> fastq_1 and fastq_2 must be full path. Relative path are not allowed.
 
 ### Multiple runs of the same sample
 

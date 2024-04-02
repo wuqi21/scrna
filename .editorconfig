@@ -29,7 +29,7 @@ indent_style = unset
 indent_size = unset
 
 # ignore Readme
-[README.md]
+[*.md]
 indent_style = unset
 
 # ignore python

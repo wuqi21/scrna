@@ -41,7 +41,8 @@ nextflow run singleron-RD/scrna \
  ...
 ```
 
-> [!NOTE] > `--fasta` and `--gtf` are not required if `--star_genome` is provided.
+> [!NOTE]
+> Arguments `--fasta` and `--gtf` are not required if `--star_genome` is provided.
 
 ## Input
 
