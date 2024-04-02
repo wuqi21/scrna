@@ -4,8 +4,8 @@ process STAR_GENOME {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/star:2.7.10b--h9ee0642_0':
-        'biocontainers/star:2.7.10b--h9ee0642_0' }"
+        'https://depot.galaxyproject.org/singularity/star:2.7.11b--h43eeafb_0' :
+        'biocontainers/star:2.7.11b--h43eeafb_0' }"
 
     input:
     path fasta

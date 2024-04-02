@@ -17,10 +17,10 @@ nextflow run singleron-RD/scrna \
  -profile docker \
  --outdir ./results \
  --input 'https://raw.githubusercontent.com/singleron-RD/scrna_test_data/master/GEXSCOPE-V2/samplesheet.csv' \
- --fasta 'https://github.com/nf-core/test-datasets/raw/scrnaseq/reference/GRCm38.p6.genome.chr19.fa' \
- --gtf 'https://github.com/nf-core/test-datasets/raw/scrnaseq/reference/gencode.vM19.annotation.chr19.gtf' \
- --genome_name 'mouse_chr19' \
- --keep_attributes 'gene_type=protein_coding,lncRNA,antisense' \
+ --fasta 'https://raw.githubusercontent.com/singleron-RD/scrna_test_data/master/star_genome/mmu/mmu.ensembl.99.MT.fasta' \
+ --gtf 'https://raw.githubusercontent.com/singleron-RD/scrna_test_data/master/star_genome/mmu/mmu.ensembl.99.MT.gtf' \
+ --genome_name 'mmu.ensembl.99.MT' \
+ --keep_attributes 'gene_biotype=protein_coding,lncRNA,antisense' \
  --max_cpus 2 \
  --max_memory '6.GB' \
  --max_time '6.h'
