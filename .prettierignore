@@ -11,5 +11,3 @@ testing*
 *.pyc
 bin/
 parameters.md
-usage.md
-quickstart.md

@@ -4,9 +4,12 @@ lint:
     - assets/nf-core-scrna_logo_light.png
     - docs/images/nf-core-scrna_logo_light.png
     - docs/images/nf-core-scrna_logo_dark.png
+    - docs/output.md
+    - docs/README.md
     - .github/ISSUE_TEMPLATE/config.yml
     - .github/workflows/awstest.yml
     - .github/workflows/awsfulltest.yml
+    - .github/workflows/linting_comment.yml
     - conf/igenomes.config
   files_unchanged:
     - CODE_OF_CONDUCT.md
