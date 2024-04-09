@@ -239,9 +239,9 @@ class Protocol:
         protocol, read_counts = sorted_counts[0]
         percent = float(read_counts) / n
         if percent < 0.5:
-            self.get_protocol.logger.warning("Valid protocol read counts percent < 0.5")
+            logger.warning("Valid protocol read counts percent < 0.5")
         if percent < 0.1:
-            self.get_protocol.logger.error("Valid protocol read counts percent < 0.1")
+            logger.error("Valid protocol read counts percent < 0.1")
             raise Exception(
                 'Auto protocol detection failed! '
             )
