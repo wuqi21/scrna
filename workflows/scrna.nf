@@ -7,7 +7,6 @@
 include { FILTER_GTF             } from '../modules/local/filter_gtf'
 include { STAR_GENOME            } from '../modules/local/star/genome/main'
 include { PROTOCOL_CMD           } from '../modules/local/protocol_cmd/main'
-include { STARSOLO               } from '../modules/local/star/starsolo/main'
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/local/multiqc_sgr/main'
 include { paramsSummaryMap       } from 'plugin/nf-validation'
@@ -20,6 +19,91 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_scrn
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+process STARSOLO {
+    tag "$meta.id"
+    label 'process_high'
+
+    conda "bioconda::star==2.7.11b"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/star:2.7.11b--h43eeafb_0' :
+        'biocontainers/star:2.7.11b--h43eeafb_0' }"
+
+    input:
+    tuple val(meta), path(reads)
+    path index
+    path assets_dir
+    val starsolo_cmd
+
+    output:
+    tuple val(meta), path("${meta.id}.matrix/")       , emit: matrix
+    tuple val(meta), path('*d.out.bam')               , emit: bam
+    tuple val(meta), path('*.Solo.out')               , emit: solo_out
+    path('*Log.final.out')                            , emit: log_final
+    path "*.Solo.out/GeneFull_Ex50pAS/Summary.csv"    , emit: summary
+    tuple val(meta), path("*.Solo.out/GeneFull_Ex50pAS/CellReads.stats")    , emit: read_stats
+    path "${meta.id}.matrix/filtered/barcodes.tsv.gz" , emit: barcodes
+    path  "versions.yml"                      , emit: versions
+
+    tuple val(meta), path('*sortedByCoord.out.bam')  , optional:true, emit: bam_sorted
+    tuple val(meta), path('*toTranscriptome.out.bam'), optional:true, emit: bam_transcript
+    tuple val(meta), path('*Aligned.unsort.out.bam') , optional:true, emit: bam_unsorted
+    tuple val(meta), path('*out.mate')               , optional:true, emit: unmap
+    tuple val(meta), path('*.tab')                   , optional:true, emit: tab
+
+    when:
+    task.ext.when == null || task.ext.when
+
+    script:
+    def prefix = "${meta.id}"
+
+    // do not indent
+"""
+${starsolo_cmd}
+
+if [ -d ${prefix}.Solo.out ]; then
+    # Backslashes still need to be escaped (https://github.com/nextflow-io/nextflow/issues/67)
+    find ${prefix}.Solo.out \\( -name "*.tsv" -o -name "*.mtx" \\) -exec gzip -f {} \\;
+fi
+
+mkdir ${prefix}.matrix
+mv ${prefix}.Solo.out/GeneFull_Ex50pAS/{raw,filtered} ./${prefix}.matrix/
+
+cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+    star: \$(STAR --version | sed -e "s/STAR_//g")
+END_VERSIONS
+"""
+}
+
+
+process STARSOLO_SUMMARY {
+    tag "$meta.id"
+    label 'process_single'
+
+    conda 'conda-forge::pandas==1.5.2'
+    container "biocontainers/pandas:1.5.2"
+
+    input:
+    tuple val(meta), path(read_stats)
+    path summary
+    path barcodes
+
+    output:
+    path "${meta.id}.read_stats.json", emit: read_stats_json
+    path "${meta.id}.summary.json", emit: summary_json
+    path "${meta.id}.UMI_count.tsv", emit: umi_count
+
+    script:
+
+    """
+    starsolo_summary.py \\
+        --read_stats ${read_stats} \\
+        --barcodes ${barcodes} \\
+        --summary ${summary} \\
+        --sample ${meta.id}
+    """
+}
 
 workflow SCRNA {
 
@@ -77,8 +161,15 @@ workflow SCRNA {
         "${projectDir}/assets/",
         ch_starsolo_cmd,
     )
-    ch_multiqc_files = ch_multiqc_files.mix(STARSOLO.out.log_final.collect()).mix(STARSOLO.out.summary.collect())
     ch_versions = ch_versions.mix(STARSOLO.out.versions.first())
+
+    // statsolo summary
+    STARSOLO_SUMMARY (
+        STARSOLO.out.read_stats,
+        STARSOLO.out.summary,
+        STARSOLO.out.barcodes,
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(STARSOLO_SUMMARY.out.read_stats_json.collect()).mix(STARSOLO_SUMMARY.out.summary_json.collect())
 
     //
     // Collate and save software versions

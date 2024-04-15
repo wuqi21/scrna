@@ -101,7 +101,7 @@
                 },
                 "whitelist": {
                     "type": "string",
-                    "description": "Barcode whitelist files. Multiple whitelists are seperated by comma."
+                    "description": "Barcode whitelist files. Multiple whitelists are seperated by whitespace."
                 }
             }
         },
