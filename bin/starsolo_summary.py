@@ -82,16 +82,23 @@ if __name__ == '__main__':
         if bc in cbs:
             last_cell = i
             break
-    pure = args.sample+'.cells.pure'
-    mix = args.sample+'.cells.mix'
+    pure = args.sample + '.cells.pure' + f'({first_noncell}/{first_noncell}, 100%)'
     bg = args.sample+'.cells.background'
     plot_data[pure] = {}
-    plot_data[mix] = {}
     plot_data[bg] = {}
     for i in range(first_noncell):
         plot_data[pure][i+1] = int(umi_count.iloc[i])
-    for i in range(first_noncell, last_cell+1):
-        plot_data[mix][i+1] = int(umi_count.iloc[i])
+
+    n_mix = last_cell - first_noncell + 1
+    if n_mix != 0:
+        n_total = len(cbs)
+        n_mix_cell = n_total - first_noncell
+        mix_rate = round(n_mix_cell / n_mix * 100, 2)
+        mix = args.sample+'.cells.mix' + f'({n_mix_cell}/{n_mix}, {mix_rate}%)'
+        plot_data[mix] = {}
+        for i in range(first_noncell, last_cell+1):
+            plot_data[mix][i+1] = int(umi_count.iloc[i])
+
     for i in range(last_cell+1, min(MAX_CELL,n), 10):
         plot_data[bg][i+1] = int(umi_count.iloc[i])
     # do not record every umi count
