@@ -12,8 +12,8 @@ It takes a samplesheet and FASTQ files as input, performs the following steps:
 
 ## Documents
 
-- [Quick Start](./docs/quickstart.md)
 - [Usage](./docs/usage.md)
+- [Modules](./docs/modules.md)
 - [Parameters](./docs/parameters.md)
 
 ## Contributions and Support
