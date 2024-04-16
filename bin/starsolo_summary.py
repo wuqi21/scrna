@@ -64,6 +64,7 @@ if __name__ == '__main__':
     with open(summary_file, 'w') as f:
         json.dump(parsed_data, f)
 
+    # UMI count 
     df_count.sort_values(by='nUMIunique', ascending=False, inplace=True)
     cbs = utils.read_one_col(args.barcodes)
     df_count['mark'] = 'BG'

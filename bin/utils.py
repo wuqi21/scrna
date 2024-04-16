@@ -1,12 +1,12 @@
 import gzip
 
 
-def openfile(file_name, *args, **kwargs):
+def openfile(file_name, mode='rt', **kwargs):
     """open gzip or plain file"""
     if file_name.endswith('.gz'):
-        file_obj = gzip.open(file_name, *args, **kwargs)
+        file_obj = gzip.open(file_name, mode=mode, **kwargs)
     else:
-        file_obj = open(file_name, *args, **kwargs)
+        file_obj = open(file_name, mode=mode, **kwargs)
     return file_obj
 
 
