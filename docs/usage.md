@@ -77,6 +77,7 @@ star_genome: 'path_to_star_genome_index'
 ```
 
 If you prefer a web-based graphical interface or an interactive command-line wizard tool to generate the pipeline parameters, you can use [nf-core launch](https://oldsite.nf-co.re/tools/#launch-a-pipeline):
+
 ```
 pip install nf-core
 nf-core launch singleron-RD/accurascoperna
@@ -86,22 +87,26 @@ nf-core launch singleron-RD/accurascoperna
 
 Since indexing is an expensive process in time and resources you should ensure that it is only done once, by retaining the indices generated from each batch of reference files.
 
-When running the data of a certain species for the first time, you can provide  `fasta`, `gtf` and `genome_name` instead of `star_genome`. For example,
+When running the data of a certain species for the first time, you can provide `fasta`, `gtf` and `genome_name` instead of `star_genome`. For example,
+
 ```yaml
-fasta: 'https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.fasta' 
-gtf: 'https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.gtf'
-genome_name: 'human.GRCh38.99.MT'
+fasta: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.fasta"
+gtf: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.gtf"
+genome_name: "human.GRCh38.99.MT"
 ```
+
 The STAR index files will be saved in `{outdir}/star_genome/{genome_name}/`.
 When running data from the same genome later, you can provide `star_genome` to skip the indexing:
+
 ```yaml
-star_genome: '/workspaces/test/outs/star_genome/human.GRCh38.99.MT/'
+star_genome: "/workspaces/test/outs/star_genome/human.GRCh38.99.MT/"
 ```
 
 ### Running the pipeline with test data
 
 This pipeline contains a small test data. The test config file can be found [here](../conf/test.config).
 Run the following command to test
+
 ```
 nextflow run singleron-RD/accurascoperna -profile test,docker --outdir results
 ```
