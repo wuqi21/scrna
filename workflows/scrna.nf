@@ -92,7 +92,7 @@ process STARSOLO_SUMMARY {
     output:
     path "${meta.id}.read_stats.json", emit: read_stats_json
     path "${meta.id}.summary.json", emit: summary_json
-    path "${meta.id}.UMI_count.tsv", emit: umi_count
+    path "${meta.id}.umi_count.json", emit: umi_count_json
 
     script:
 
@@ -169,7 +169,7 @@ workflow SCRNA {
         STARSOLO.out.summary,
         STARSOLO.out.barcodes,
     )
-    ch_multiqc_files = ch_multiqc_files.mix(STARSOLO_SUMMARY.out.read_stats_json.collect()).mix(STARSOLO_SUMMARY.out.summary_json.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(STARSOLO_SUMMARY.out.read_stats_json.collect()).mix(STARSOLO_SUMMARY.out.summary_json.collect()).mix(STARSOLO_SUMMARY.out.umi_count_json.collect())
 
     //
     // Collate and save software versions

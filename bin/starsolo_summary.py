@@ -14,6 +14,7 @@ def parse_summary(f):
         parsed_data[row[0]] = row[1]
     return parsed_data
 
+MAX_CELL = 2 * 10 ** 5
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Starsolo summary')
@@ -22,10 +23,10 @@ if __name__ == '__main__':
     parser.add_argument('--summary', help='summary file')
     parser.add_argument('--sample', help='sample name')
     args = parser.parse_args()
-    dtypes = defaultdict(lambda :'Int32')
+    dtypes = defaultdict(lambda :'int')
     dtypes['CB'] = 'object'
     df = pd.read_csv(args.read_stats, sep='\t', header=0, index_col=0, skiprows=[1], dtype=dtypes) # skip first line cb not pass whitelist
-    df_count = df.loc[:,['nUMIunique','countedU']] # keep dataframe format
+    umi_count = df['nUMIunique'] # keep dataframe format
     df = df.loc[:,['cbMatch', 'cbPerfect','genomeU', 'genomeM', 'exonic', 'intronic','exonicAS','intronicAS','countedU']]
     s = df.sum()
     # json does not recognize NumPy data types. TypeError: Object of type int64 is not JSON serializable
@@ -65,10 +66,38 @@ if __name__ == '__main__':
         json.dump(parsed_data, f)
 
     # UMI count 
-    df_count.sort_values(by='nUMIunique', ascending=False, inplace=True)
-    cbs = utils.read_one_col(args.barcodes)
-    df_count['mark'] = 'BG'
-    for cb in cbs:
-        df_count.loc[cb, 'mark'] = 'CB'
-    UMI_file = args.sample + '.UMI_count.tsv' 
-    df_count.to_csv(UMI_file, index=True)
+    umi_count.loc[lambda x: x>0]
+    umi_count = umi_count.sort_values(ascending=False)
+    cbs = set(utils.read_one_col(args.barcodes))
+    plot_data = {}
+    n = len(umi_count)
+    first_noncell = n-1
+    for i, bc in enumerate(umi_count.index):
+        if bc not in cbs:
+            first_noncell = i
+            break
+    last_cell = 0
+    for i in range(min(n-1,MAX_CELL), -1, -1):
+        bc = umi_count.index[i]
+        if bc in cbs:
+            last_cell = i
+            break
+    pure = args.sample+'.cells.pure'
+    mix = args.sample+'.cells.mix'
+    bg = args.sample+'.cells.background'
+    plot_data[pure] = {}
+    plot_data[mix] = {}
+    plot_data[bg] = {}
+    for i in range(first_noncell):
+        plot_data[pure][i+1] = int(umi_count.iloc[i])
+    for i in range(first_noncell, last_cell+1):
+        plot_data[mix][i+1] = int(umi_count.iloc[i])
+    for i in range(last_cell+1, min(MAX_CELL,n), 10):
+        plot_data[bg][i+1] = int(umi_count.iloc[i])
+    # do not record every umi count
+    for i in range(MAX_CELL, n, 1000):
+        plot_data[bg][i+1] = int(umi_count.iloc[i])
+
+    umi_file = args.sample + '.umi_count.json'
+    with open(umi_file, 'w') as f:
+        json.dump(plot_data, f)
