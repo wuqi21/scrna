@@ -1,9 +1,0 @@
-name: starsolo
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - bioconda::star=2.7.11b
-  - pip:
-      - pyfastx==2.1.0

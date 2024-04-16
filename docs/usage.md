@@ -1,4 +1,7 @@
-# singleron-RD/scrna: Usage
+# singleron-RD/accurascoperna: Usage
+
+> [!NOTE]
+> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow.
 
 ## Samplesheet input
 
@@ -33,7 +36,11 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run singleron-RD/scrna --input ./samplesheet.csv --outdir ./results --star_genome path_to_star_genome_index -profile docker
+nextflow run singleron-RD/accurascoperna \
+ --input ./samplesheet.csv \
+ --outdir ./results \
+ --star_genome path_to_star_genome_index \
+ -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -57,7 +64,7 @@ Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run singleron-RD/scrna -profile docker -params-file params.yaml
+nextflow run singleron-RD/accurascoperna -profile docker -params-file params.yaml
 ```
 
 with `params.yaml` containing:
@@ -69,21 +76,49 @@ star_genome: 'path_to_star_genome_index'
 <...>
 ```
 
-You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
+If you prefer a web-based graphical interface or an interactive command-line wizard tool to generate the pipeline parameters, you can use [nf-core launch](https://oldsite.nf-co.re/tools/#launch-a-pipeline):
+```
+pip install nf-core
+nf-core launch singleron-RD/accurascoperna
+```
+
+### Create genome index
+
+Since indexing is an expensive process in time and resources you should ensure that it is only done once, by retaining the indices generated from each batch of reference files.
+
+When running the data of a certain species for the first time, you can provide  `fasta`, `gtf` and `genome_name` instead of `star_genome`. For example,
+```yaml
+fasta: 'https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.fasta' 
+gtf: 'https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.gtf'
+genome_name: 'human.GRCh38.99.MT'
+```
+The STAR index files will be saved in `{outdir}/star_genome/{genome_name}/`.
+When running data from the same genome later, you can provide `star_genome` to skip the indexing:
+```yaml
+star_genome: '/workspaces/test/outs/star_genome/human.GRCh38.99.MT/'
+```
+
+### Running the pipeline with test data
+
+This pipeline contains a small test data. The test config file can be found [here](../conf/test.config).
+Run the following command to test
+```
+nextflow run singleron-RD/accurascoperna -profile test,docker --outdir results
+```
 
 ### Updating the pipeline
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull singleron-RD/scrna
+nextflow pull singleron-RD/accurascoperna
 ```
 
 ### Reproducibility
 
 It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [singleron-RD/scrna releases page](https://github.com/singleron-RD/scrna/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
+First, go to the [singleron-RD/accurascoperna releases page](https://github.com/singleron-RD/accurascoperna/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
@@ -91,101 +126,6 @@ To further assist in reproducbility, you can use share and re-use [parameter fil
 
 > [!TIP]
 > If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
-
-## Modules
-
-### fastqc
-
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
-
-**Output files**
-
-- `fastqc/`
-  - `*_fastqc.html`: FastQC report containing quality metrics.
-  - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
-
-### filter_gtf
-
-This module has the same functionality as [`cellranger mkgtf`](https://kb.10xgenomics.com/hc/en-us/articles/360002541171-What-criteria-should-I-use-with-the-mkgtf-tool-when-making-a-custom-reference-for-Cell-Ranger)
-
-> GTF files can contain entries for non-polyA transcripts that overlap with protein-coding gene models. These entries can cause reads to be flagged as mapped to multiple genes (multi-mapped) because of the overlapping annotations. In the case where reads are flagged as multi-mapped, they are not counted.
-
-> We recommend filtering the GTF file so that it contains only gene categories of interest by using the cellranger mkgtf tool. Which genes to filter depends on your research question.
-
-The filtering criteria is controlled by the argument `--keep_attributes`. The default value of this argument is the same as the [reference used by cellranger](https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#grch38_3.0.0)
-
-> [!NOTE]
-> gtf files from [genecode](https://www.gencodegenes.org/) use `gene_type` instead of `gene_biotype`.
->
-> ```
-> --keep_attributes "gene_type=protein_coding,lncRNA..."
-> ```
-
-**Output files**
-
-- `genome/`
-  - `*.filtered.gtf` GTF file after filtering.
-  - `gtf_filter.log` log file containing number of lines filtered in the original gtf file.
-
-### genome
-
-Generate STAR genome index. Detailed documents can be found in the [STAR Manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
-
-> [!TIP]
-> Once you have the indices from a workflow run you should save them somewhere central and reuse them in subsequent runs using custom config files or command line parameters.
-
-**Output files**
-
-- `genome/{genome_name}/` STAR genome index folder.
-
-### protocol_cmd
-
-Automatically detect [GEXSCOPE protocol](../assets/protocols.json) from R1 reads and generate STARSolo command-line arguments accordingly.
-
-**Output files**
-
-- `protocol_cmd/{sample}/`
-  - `{sample}.protocol.txt` Deteced protocol.
-  - `{sample}.starsolo_cmd.txt` STARSolo command-line arguments.
-
-### starsolo
-
-[STARSolo documents](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md)
-
-> [!NOTE]
-> The command line arguments in this STARsolo documentation may not be up to date. For the latest STARSolo arguments, please refer to the lastest [STAR Manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
-
-**Output files**
-
-- `starsolo/{sample}/`
-  - `{sample}.Solo.out` STARSolo output.
-
-TODO: add details.
-
-### multiqc
-
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
-
-Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability.
-
-**Output files**
-
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
-
-### Pipeline information
-
-[Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
-
-**Output files**
-
-- `pipeline_info/`
-  - Reports generated by Nextflow: `execution_report.html`, `execution_timeline.html`, `execution_trace.txt` and `pipeline_dag.dot`/`pipeline_dag.svg`.
-  - Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.yml`. The `pipeline_report*` files will only be present if the `--email` / `--email_on_fail` parameter's are used when running the pipeline.
-  - Reformatted samplesheet files used as input to the pipeline: `samplesheet.valid.csv`.
-  - Parameters used by the pipeline run: `params.json`.
 
 ## Core Nextflow arguments
 
@@ -240,7 +180,7 @@ Specify the path to a specific config file (this is a core Nextflow command). Se
 
 ### Resource requests
 
-Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher requests (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
+Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified [here](../conf/base.config#L18) it will automatically be resubmitted with higher requests (2 x original). If it still fails after the attempt then the pipeline execution is stopped.
 
 To change the resource requests, please see the [max resources](https://nf-co.re/docs/usage/configuration#max-resources) and [tuning workflow resources](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources) section of the nf-core website.
 
