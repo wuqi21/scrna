@@ -3,7 +3,7 @@
 - [Modules](#modules)
   - [fastqc](#fastqc)
   - [filter_gtf](#filter_gtf)
-  - [genome](#genome)
+  - [star_genome](#star_genome)
   - [protocol_cmd](#protocol_cmd)
   - [starsolo](#starsolo)
   - [starsolo_summary](#starsolo_summary)
@@ -41,7 +41,7 @@ The filtering criteria is controlled by the argument `--keep_attributes`. The de
 - `*.filtered.gtf` GTF file after filtering.
 - `gtf_filter.log` log file containing number of lines filtered in the original gtf file.
 
-## genome
+## star_genome
 
 Generate STAR genome index. Detailed documents can be found in the [STAR Manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
 

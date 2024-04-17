@@ -182,7 +182,7 @@ def toolBibliographyText() {
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
             "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/.</li>",
-            "<li>Dobin A, etc. STAR: ultrafast universal RNA-seq aligner. Bioinformatics. 2013 Jan 1;29(1):15-21. doi: 10.1093/bioinformatics/bts635.<li>",
+            "<li>Dobin A, etc. Kaminow, Benjamin, Dinar Yunusov, and Alexander Dobin. STARsolo: accurate, fast and versatile mapping/quantification of single-cell and single-nucleus RNA-seq data. Biorxiv (2021): 2021-05.</li>",
             "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
         ].join(' ').trim()
 
@@ -204,7 +204,7 @@ def methodsDescriptionText(mqc_methods_yaml) {
     meta["tool_bibliography"] = ""
 
     // nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
     meta["tool_bibliography"] = toolBibliographyText()
 
 
