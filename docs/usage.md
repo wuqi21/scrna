@@ -1,4 +1,4 @@
-# singleron-RD/accurascoperna: Usage
+# singleron-RD/scrna: Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow.
@@ -36,7 +36,7 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run singleron-RD/accurascoperna \
+nextflow run singleron-RD/scrna \
  --input ./samplesheet.csv \
  --outdir ./results \
  --star_genome path_to_star_genome_index \
@@ -64,7 +64,7 @@ Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <
 The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run singleron-RD/accurascoperna -profile docker -params-file params.yaml
+nextflow run singleron-RD/scrna -profile docker -params-file params.yaml
 ```
 
 with `params.yaml` containing:
@@ -80,7 +80,7 @@ If you prefer a web-based graphical interface or an interactive command-line wiz
 
 ```
 pip install nf-core
-nf-core launch singleron-RD/accurascoperna
+nf-core launch singleron-RD/scrna
 ```
 
 ### Create genome index
@@ -108,7 +108,7 @@ This pipeline contains a small test data. The test config file can be found [her
 Run the following command to test
 
 ```
-nextflow run singleron-RD/accurascoperna -profile test,docker --outdir results
+nextflow run singleron-RD/scrna -profile test,docker --outdir results
 ```
 
 ### Updating the pipeline
@@ -116,14 +116,14 @@ nextflow run singleron-RD/accurascoperna -profile test,docker --outdir results
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull singleron-RD/accurascoperna
+nextflow pull singleron-RD/scrna
 ```
 
 ### Reproducibility
 
 It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [singleron-RD/accurascoperna releases page](https://github.com/singleron-RD/accurascoperna/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
+First, go to the [singleron-RD/scrna releases page](https://github.com/singleron-RD/scrna/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 

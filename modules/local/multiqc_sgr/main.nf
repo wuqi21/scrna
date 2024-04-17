@@ -2,7 +2,7 @@ process MULTIQC {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "quay.io/singleron-rd/multiqc_sgr:1.21.2"
+    container "quay.io/singleron-rd/multiqc_sgr:1.21.3"
 
     input:
     path  multiqc_files, stageAs: "?/*"
