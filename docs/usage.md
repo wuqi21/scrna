@@ -31,6 +31,16 @@ CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
 CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 ```
 
+### Create `samplesheet.csv` using helper script
+
+When you have many samples, manually creating `samplesheet.csv` can be tedious and error-prone. There is a python script [samplesheet.py](../scripts/samplesheet.py) in the scripts directory that can help you extract the path of all paired-end fastq files in the specified folders and create a samplesheet.csv file.
+
+```
+python scripts/samplesheet.py folder1,folder2
+```
+
+The sample name is extracted from the prefix of the fastq files. You may still need to manually change the sample column.
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
