@@ -33,13 +33,40 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 
 ### Create `samplesheet.csv` using helper script
 
-When you have many samples, manually creating `samplesheet.csv` can be tedious and error-prone. There is a python script [samplesheet.py](../scripts/samplesheet.py) in the scripts directory that can help you extract the path of all paired-end fastq files in the specified folders and create a samplesheet.csv file.
+When you have many samples, manually creating `samplesheet.csv` can be tedious and error-prone. There is a python script [samplesheet.py](../scripts/samplesheet.py) that can help you create a `samplesheet.csv` file.
+
+`-m --manifest` Path to the manifest CSV file containing prefix-sample mapping.
+
+`-f --folders` Comma-separated paths to folders to search for fastq files.
+
+manifest.csv
 
 ```
-python scripts/samplesheet.py folder1,folder2
+sample,prefix
+Sample_X,test
+Sample_Y,Sample_Y
 ```
 
-The sample name is extracted from the prefix of the fastq files. You may still need to manually change the sample column.
+/workspaces/scrna_test_data/GEXSCOPE-V2
+
+```
+Sample_Y_S1_L001_R1_001.fastq.gz  Sample_Y_S1_L002_R1_001.fastq.gz  test_R1.fastq.gz
+Sample_Y_S1_L001_R2_001.fastq.gz  Sample_Y_S1_L002_R2_001.fastq.gz  test_R2.fastq.gz
+```
+
+Run
+
+```
+python scripts/samplesheet.py -m manifest.csv -f /workspaces/scrna_test_data/GEXSCOPE-V2
+```
+
+samplesheet.csv
+
+```
+Sample_X,/workspaces/scrna_test_data/GEXSCOPE-V2/test_R1.fastq.gz,/workspaces/scrna_test_data/GEXSCOPE-V2/test_R2.fastq.gz
+Sample_Y,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L001_R1_001.fastq.gz,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L001_R2_001.fastq.gz
+Sample_Y,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L002_R1_001.fastq.gz,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L002_R2_001.fastq.gz
+```
 
 ## Running the pipeline
 
