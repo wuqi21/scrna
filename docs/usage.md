@@ -63,6 +63,7 @@ python scripts/samplesheet.py -m manifest.csv -f /workspaces/scrna_test_data/GEX
 samplesheet.csv
 
 ```
+sample,fastq_1,fastq_2
 Sample_X,/workspaces/scrna_test_data/GEXSCOPE-V2/test_R1.fastq.gz,/workspaces/scrna_test_data/GEXSCOPE-V2/test_R2.fastq.gz
 Sample_Y,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L001_R1_001.fastq.gz,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L001_R2_001.fastq.gz
 Sample_Y,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L002_R1_001.fastq.gz,/workspaces/scrna_test_data/GEXSCOPE-V2/Sample_Y_S1_L002_R2_001.fastq.gz
