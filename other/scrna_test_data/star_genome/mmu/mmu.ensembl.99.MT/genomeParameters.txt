@@ -1,0 +1,19 @@
+### STAR   --runMode genomeGenerate      --runThreadN 2   --genomeDir mmu.ensembl.99.MT/   --genomeFastaFiles mmu.ensembl.99.MT.fasta      --genomeSAindexNbases 5   --limitGenomeGenerateRAM 6342450944   --sjdbGTFfile mmu.ensembl.99.MT.filtered.gtf
+### GstrandBit 32
+versionGenome	2.7.4a
+genomeType	Full
+genomeFastaFiles	mmu.ensembl.99.MT.fasta 
+genomeSAindexNbases	5
+genomeChrBinNbits	18
+genomeSAsparseD	1
+genomeTransformType	None
+genomeTransformVCF	-
+sjdbOverhang	100
+sjdbFileChrStartEnd	- 
+sjdbGTFfile	mmu.ensembl.99.MT.filtered.gtf
+sjdbGTFchrPrefix	-
+sjdbGTFfeatureExon	exon
+sjdbGTFtagExonParentTranscript	transcript_id
+sjdbGTFtagExonParentGene	gene_id
+sjdbInsertSave	Basic
+genomeFileSizes	262144 134470

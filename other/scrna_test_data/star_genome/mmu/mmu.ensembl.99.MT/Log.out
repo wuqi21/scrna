@@ -1,0 +1,72 @@
+STAR version=2.7.10b
+STAR compilation time,server,dir=2022-11-01T09:53:26-04:00 :/home/dobin/data/STAR/STARcode/STAR.master/source
+STAR git: On branch master ; commit c6f8efc2c7043ef83bf8b0d9bed36bbb6b9b1133 ; diff files: CHANGES.md 
+##### Command Line:
+STAR --runMode genomeGenerate --genomeDir mmu.ensembl.99.MT/ --genomeFastaFiles mmu.ensembl.99.MT.fasta --sjdbGTFfile mmu.ensembl.99.MT.filtered.gtf --runThreadN 2 --genomeSAindexNbases 5.0 --limitGenomeGenerateRAM 6342450944
+##### Initial USER parameters from Command Line:
+###### All USER parameters from Command Line:
+runMode                       genomeGenerate        ~RE-DEFINED
+genomeDir                     mmu.ensembl.99.MT/     ~RE-DEFINED
+genomeFastaFiles              mmu.ensembl.99.MT.fasta        ~RE-DEFINED
+sjdbGTFfile                   mmu.ensembl.99.MT.filtered.gtf     ~RE-DEFINED
+runThreadN                    2     ~RE-DEFINED
+genomeSAindexNbases           5     ~RE-DEFINED
+limitGenomeGenerateRAM        6342450944     ~RE-DEFINED
+##### Finished reading parameters from all sources
+
+##### Final user re-defined parameters-----------------:
+runMode                           genomeGenerate   
+runThreadN                        2
+genomeDir                         mmu.ensembl.99.MT/
+genomeFastaFiles                  mmu.ensembl.99.MT.fasta   
+genomeSAindexNbases               5
+limitGenomeGenerateRAM            6342450944
+sjdbGTFfile                       mmu.ensembl.99.MT.filtered.gtf
+
+-------------------------------
+##### Final effective command line:
+STAR   --runMode genomeGenerate      --runThreadN 2   --genomeDir mmu.ensembl.99.MT/   --genomeFastaFiles mmu.ensembl.99.MT.fasta      --genomeSAindexNbases 5   --limitGenomeGenerateRAM 6342450944   --sjdbGTFfile mmu.ensembl.99.MT.filtered.gtf
+----------------------------------------
+
+Number of fastq files for each mate = 1
+ParametersSolo: --soloCellFilterType CellRanger2.2 filtering parameters:  3000 0.99 10
+Finished loading and checking parameters
+--genomeDir directory exists and will be overwritten: mmu.ensembl.99.MT/
+Apr 02 07:23:34 ... starting to generate Genome files
+mmu.ensembl.99.MT.fasta : chr # 0  "MT" chrStart: 0
+Chromosome sequence lengths: 
+MT	16299
+Genome sequence total length = 16299
+Genome size with padding = 262144
+Apr 02 07:23:34 ..... processing annotations GTF
+Processing pGe.sjdbGTFfile=mmu.ensembl.99.MT.filtered.gtf, found:
+		13 transcripts
+		13 exons (non-collapsed)
+		0 collapsed junctions
+Total junctions: 0
+Apr 02 07:23:34 ..... finished GTF processing
+
+Estimated genome size with padding and SJs: total=genome+SJ=201262144 = 262144 + 201000000
+GstrandBit=32
+Number of SA indices: 32598
+Apr 02 07:23:34 ... starting to sort Suffix Array. This may take a long time...
+Number of chunks: 1;   chunks size limit: 260784 bytes
+Apr 02 07:23:34 ... sorting Suffix Array chunks and saving them to disk...
+Writing 260784 bytes into mmu.ensembl.99.MT//SA_0 ; empty space on disk = 1245500989440 bytes ... done
+Apr 02 07:23:34 ... loading chunks from disk, packing SA...
+Apr 02 07:23:34 ... finished generating suffix array
+Apr 02 07:23:34 ... generating Suffix Array index
+Apr 02 07:23:34 ... completed Suffix Array index
+Apr 02 07:23:34   Finished preparing junctions
+Apr 02 07:23:34 ..... finished inserting junctions into genome
+Apr 02 07:23:34 ... writing Genome to disk ...
+Writing 262144 bytes into mmu.ensembl.99.MT//Genome ; empty space on disk = 1245500940288 bytes ... done
+SA size in bytes: 134470
+Apr 02 07:23:34 ... writing Suffix Array to disk ...
+Writing 134470 bytes into mmu.ensembl.99.MT//SA ; empty space on disk = 1245500657664 bytes ... done
+Apr 02 07:23:34 ... writing SAindex to disk
+Writing 8 bytes into mmu.ensembl.99.MT//SAindex ; empty space on disk = 1245500502016 bytes ... done
+Writing 48 bytes into mmu.ensembl.99.MT//SAindex ; empty space on disk = 1245500502016 bytes ... done
+Writing 5971 bytes into mmu.ensembl.99.MT//SAindex ; empty space on disk = 1245500502016 bytes ... done
+Apr 02 07:23:34 ..... finished successfully
+DONE: Genome generation, EXITING
